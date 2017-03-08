@@ -52,4 +52,8 @@ for ligne in lignes:
     # print(demandes)
     page = BeautifulSoup(demandes.text,"html.parser")
     
-    rangees = page.find_all("tr")
+    reserves = page.find("span", id="plcMain_txtBandName").text
+    for item in page.find("div", class_="table-responsive").find_all("tr")[1:]:
+        categorie = item.find_all("span")[0]
+        valeur = item.find_all("span")[1]
+        total = (reserves, categorie.text, valeur.text)
