@@ -44,16 +44,21 @@ f = open(fich)
 
 lignes = f.readlines()
 
+url2 = []
+
 for ligne in lignes:
     numeros = re.findall('\d+', ligne)
     numero = numeros[0]
-    url2 = "http://fnp-ppn.aandc-aadnc.gc.ca/fnp/Main/Search/FNRegPopulation.aspx?BAND_NUMBER={}&lang=eng".format(numero)
-    demandes = requests.get(url2,headers=entetes)
-    # print(demandes)
-    page = BeautifulSoup(demandes.text,"html.parser")
+    url2.append("http://fnp-ppn.aandc-aadnc.gc.ca/fnp/Main/Search/FNRegPopulation.aspx?BAND_NUMBER={}&lang=fra".format(numero))
+
+for url in url2:
+    stats = []
+    demandes = requests.get(url,headers=entetes)
+    pages = BeautifulSoup(demandes.text,"html.parser")
+    stats.append(pages.find("span", id="plcMain_txtBandName").text)
+    for item in pages.find("div", class_="table-responsive").find_all("tr")[1:]:
+        stats.append(item.find_all("span")[1].text)
     
-    reserves = page.find("span", id="plcMain_txtBandName").text
-    for item in page.find("div", class_="table-responsive").find_all("tr")[1:]:
-        categorie = item.find_all("span")[0]
-        valeur = item.find_all("span")[1]
-        total = (reserves, categorie.text, valeur.text)
+    ecrire = open(fichier,"a")
+    pouet = csv.writer(ecrire)
+    pouet.writerow(stats)
